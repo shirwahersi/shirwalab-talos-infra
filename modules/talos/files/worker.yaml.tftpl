@@ -1,0 +1,10 @@
+machine:
+  install:
+    diskSelector:
+      size: '> 40GB'
+    wipe: true
+  network:
+    hostname: ${hostname}
+  nodeLabels:
+    cilium-enable-bgp: true
+    topology.kubernetes.io/region: ${cluster_name}
