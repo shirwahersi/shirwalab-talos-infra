@@ -1,0 +1,5 @@
+localASN: 64512
+peerASN: 64512
+peerAddress: '192.168.88.1/32'
+cidr: "172.16.88.0/24"
+allowFirstLastIPs: "No"

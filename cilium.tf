@@ -9,56 +9,46 @@ resource "helm_release" "cilium" {
   values = ["${file("${path.module}/files/values/cilium.yaml")}"]
 
   depends_on = [module.talos]
-
 }
 
-# resource "kubernetes_manifest" "cilium_bgp_peering_policy" {
-#   manifest = {
-#     apiVersion = "cilium.io/v2alpha1"
-#     kind       = "CiliumBGPPeeringPolicy"
-#     metadata = {
-#       name = "talos-cilium-mikrotik"
-#     }
-#     spec = {
-#       nodeSelector = {
-#         matchLabels = {
-#           "cilium-enable-bgp" = "true"
-#         }
-#       }
-#       virtualRouters = [{
-#         localASN      = 64512
-#         exportPodCIDR = true
-#         neighbors = [{
-#           peerAddress = "192.168.88.1/32"
-#           peerASN     = 64512
-#         }]
-#         serviceSelector = {
-#           matchExpressions = [{
-#             key      = "somekey"
-#             operator = "NotIn"
-#             values   = ["never-used-value"]
-#           }]
-#         }
-#       }]
-#     }
-#   }
+resource "helm_release" "cilium-bgp" {
+  name = "cilium-bgp"
 
-#   depends_on = [module.talos, helm_release.cilium]
-# }
+  repository = "./charts"
+  chart      = "cilium-bgp"
+  namespace  = "kube-system"
+  version    = "0.1.0"
 
-# resource "kubernetes_manifest" "cilium_load_balancer_ip_pool" {
-#   manifest = {
-#     apiVersion = "cilium.io/v2alpha1"
-#     kind       = "CiliumLoadBalancerIPPool"
-#     metadata = {
-#       name = "talos-mikrotik-lb-pool"
-#     }
-#     spec = {
-#       blocks = [{
-#         cidr              = "172.16.88.0/24"
-#         allowFirstLastIPs = "No"
-#       }]
-#     }
-#   }
-#   depends_on = [module.talos, helm_release.cilium]
-# }
+  set = [{
+    name  = "peerAddress"
+    value = "${var.gateway_ip}/32"
+    },
+    {
+      name  = "localASN"
+      value = var.bgp_asn
+    },
+    {
+      name  = "peerAddress"
+      value = var.bgp_asn
+    },
+    {
+      name  = "cidr"
+      value = var.cilium_ip_pool_cidr
+    }
+  ]
+
+  depends_on = [helm_release.cilium]
+}
+
+resource "routeros_routing_bgp_connection" "talos_mikrotik_bgp_connection" {
+  for_each         = var.nodes
+  name             = "${each.key}-k8s-mikrotik_bgp-peering"
+  as               = var.bgp_asn
+  address_families = "ip"
+  local {
+    role = "ibgp"
+  }
+  remote {
+    address = each.value.ip
+  }
+}

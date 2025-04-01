@@ -1,0 +1,17 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+ name: {{ .Release.Name }}
+spec:
+ nodeSelector:
+   matchLabels:
+     cilium-enable-bgp: "true"
+ virtualRouters:
+ - localASN: {{ .Values.localASN  }}
+   exportPodCIDR: true
+   neighbors:
+    - peerAddress: {{ .Values.peerAddress  }}
+      peerASN: {{ .Values.peerASN  }}
+   serviceSelector:
+     matchExpressions:
+       - {key: somekey, operator: NotIn, values: ['never-used-value']}
