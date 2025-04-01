@@ -28,7 +28,7 @@ resource "helm_release" "cilium-bgp" {
       value = var.bgp_asn
     },
     {
-      name  = "peerAddress"
+      name  = "peerASN"
       value = var.bgp_asn
     },
     {
