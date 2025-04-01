@@ -77,3 +77,12 @@ resource "local_file" "kubeconfig" {
   directory_permission = "0755"
   file_permission      = "0600"
 }
+
+resource "aws_secretsmanager_secret" "talos_cluster_kubeconfig" {
+  name = "/talos/${var.cluster.name}/talos_machine_secrets"
+}
+
+resource "aws_secretsmanager_secret_version" "talos_cluster_kubeconfig" {
+  secret_id     = aws_secretsmanager_secret.talos_cluster_kubeconfig.id
+  secret_string = resource.talos_cluster_kubeconfig.this.kubeconfig_raw
+}
