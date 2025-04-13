@@ -20,8 +20,6 @@ data "talos_machine_configuration" "this" {
     templatefile("${path.module}/files/control-plane.yaml.tftpl", {
       hostname     = each.key
       cluster_name = var.cluster.libvirt_cluster
-      #   cilium_values  = var.cilium.values
-      #   cilium_install = var.cilium.install
     })
     ] : [
     templatefile("${path.module}/files/worker.yaml.tftpl", {
@@ -73,13 +71,14 @@ resource "talos_cluster_kubeconfig" "this" {
 
 resource "local_file" "kubeconfig" {
   content              = talos_cluster_kubeconfig.this.kubeconfig_raw
-  filename             = "${pathexpand("~")}/.kube/${var.cluster.name}"
+  filename             = "${pathexpand("~")}/.kube/config"
   directory_permission = "0755"
   file_permission      = "0600"
 }
 
 resource "aws_secretsmanager_secret" "talos_cluster_kubeconfig" {
-  name = "/talos/${var.cluster.name}/talos_machine_secrets"
+  name                    = "/talos/${var.cluster.name}/talos_machine_secrets"
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "talos_cluster_kubeconfig" {

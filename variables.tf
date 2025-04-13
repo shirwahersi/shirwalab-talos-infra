@@ -35,3 +35,14 @@ variable "cilium_ip_pool_cidr" {
   type    = string
   default = "172.16.88.0/24"
 }
+
+variable "libvirt_server" {
+  type        = string
+  description = "Home Lab KVM server"
+  default     = "server.int.shirwalab.net"
+}
+
+variable "mikrotik_router" {
+  type    = string
+  default = "https://mikrotik.int.shirwalab.net"
+}

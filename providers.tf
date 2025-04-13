@@ -6,22 +6,22 @@ provider "aws" {
 }
 
 provider "libvirt" {
-  uri = "qemu:///system"
+  uri = "qemu+ssh://root@${var.libvirt_server}/system"
 }
 
 provider "routeros" {
-  hosturl        = "https://192.168.88.1"
+  hosturl        = var.mikrotik_router
   username       = jsondecode(data.aws_secretsmanager_secret_version.mikrotik.secret_string)["username"]
   password       = jsondecode(data.aws_secretsmanager_secret_version.mikrotik.secret_string)["password"]
-  ca_certificate = "${path.module}/certs/server.crt"
+  ca_certificate = "${path.module}/files/mikrotik_cert/server.crt"
 }
 
 provider "helm" {
   kubernetes = {
-    config_path = "~/.kube/talos-shirwalab"
+    config_path = "~/.kube/config"
   }
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/talos-shirwalab"
+  config_path = "~/.kube/config"
 }
