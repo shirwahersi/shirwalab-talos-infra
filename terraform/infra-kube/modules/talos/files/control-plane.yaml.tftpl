@@ -14,3 +14,9 @@ cluster:
   network:
     cni:
       name: none
+  apiServer:
+    extraArgs:
+      oidc-issuer-url: https://sts.windows.net/46f98a81-ef11-41d7-b1bd-68d98e19e7f8/
+      oidc-client-id: 134d8793-40cf-49f8-ae97-c8a457bcf27e
+      oidc-username-claim: upn
+      oidc-groups-claim: groups

@@ -1,0 +1,13 @@
+policy: sync
+logLevel: debug
+logFormat: json
+domainFilters:
+  - int.shirwalab.net # only handle DDNS for *.s.astrid.tech domains
+provider: rfc2136
+rfc2136:
+  host: "idm.int.shirwalab.net"
+  zone: "int.shirwalab.net"
+  tsigSecretAlg: hmac-sha512
+  tsigKeyname: acme-update
+  secretName: ipa-tsig-secret
+  tsigAxfr: false

@@ -6,7 +6,7 @@ resource "helm_release" "cilium" {
   namespace  = "kube-system"
   version    = "1.17.2"
 
-  values = ["${file("${path.module}/files/values/cilium.yaml")}"]
+  values = ["${file("${path.module}/files/values/helm/cilium/cilium.yaml")}"]
 
   depends_on = [module.talos]
 }

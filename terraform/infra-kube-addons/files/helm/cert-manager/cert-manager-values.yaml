@@ -1,0 +1,14 @@
+---
+crds:
+  enabled: true
+volumes:
+  - name: ca-bundle
+    configMap:
+      name: ipa-ca-bundle
+      items:
+        - key: ca-certificates.crt
+          path: ca-certificates.crt
+volumeMounts:
+  - name: ca-bundle
+    mountPath: /etc/ssl/certs/ca-certificates.crt
+    subPath: ca-certificates.crt
