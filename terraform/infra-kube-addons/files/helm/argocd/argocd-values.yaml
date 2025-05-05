@@ -1,0 +1,42 @@
+global:
+  domain: argocd.int.shirwalab.net
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "ipa"
+      nginx.ingress.kubernetes.io/ssl-passthrough: 'true'
+      nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+    tls: true
+
+configs:
+  rbac:
+    policy.default: role:readonly
+    policy.csv: |
+       p, role:org-admin, applications, *, */*, allow
+       p, role:org-admin, clusters, get, *, allow
+       p, role:org-admin, repositories, get, *, allow
+       p, role:org-admin, repositories, create, *, allow
+       p, role:org-admin, repositories, update, *, allow
+       p, role:org-admin, repositories, delete, *, allow
+       g, "5e1e9f90-50fa-4e3a-9c64-e176020417b2", role:org-admin
+    scopes: '[groups, email]'
+  cm:
+    admin.enabled: false
+    oidc.config: |
+      name: Azure
+      issuer: https://login.microsoftonline.com/cacde176-a85a-48d6-b35f-33f36d79fe9f/v2.0
+      clientID: c4ee1b01-010a-4657-a8f8-848a29bd81ed
+      clientSecret: $argocd-oidc-secret:oidc.azure.clientSecret
+      requestedIDTokenClaims:
+        groups:
+            essential: true
+            value: "SecurityGroup"
+      requestedScopes:
+        - openid
+        - profile
+        - email
+dex:
+  enabled: false
