@@ -18,13 +18,15 @@ data "talos_machine_configuration" "this" {
   machine_secrets  = talos_machine_secrets.this.machine_secrets
   config_patches = each.value.machine_type == "controlplane" ? [
     templatefile("${path.module}/files/control-plane.yaml.tftpl", {
-      hostname     = each.key
-      cluster_name = var.cluster.libvirt_cluster
+      hostname      = each.key
+      cluster_name  = var.cluster.libvirt_cluster
+      installer_url = "factory.talos.dev/${local.platform}-installer/${local.schematic_id}:${local.version}"
     })
     ] : [
     templatefile("${path.module}/files/worker.yaml.tftpl", {
-      hostname     = each.key
-      cluster_name = var.cluster.libvirt_cluster
+      hostname      = each.key
+      cluster_name  = var.cluster.libvirt_cluster
+      installer_url = "factory.talos.dev/${local.platform}-installer/${local.schematic_id}:${local.version}"
     })
   ]
 }

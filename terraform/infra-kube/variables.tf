@@ -19,6 +19,7 @@ variable "nodes" {
   default = {}
 }
 
+
 variable "gateway_ip" {
   type        = string
   description = "Gateway IP / Mikrotek router"
