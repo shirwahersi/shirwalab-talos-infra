@@ -22,7 +22,7 @@ resource "helm_release" "cert" {
   chart            = "cert-manager"
   namespace        = kubernetes_namespace.cert_manager.metadata[0].name
   create_namespace = false
-  version          = "v1.17.2"
+  version          = "v1.19.0"
 
   values = ["${file("${path.module}/files/helm/cert-manager/cert-manager-values.yaml")}"]
 }
@@ -35,6 +35,17 @@ resource "kubernetes_secret_v1" "acme-update" {
 
   data = {
     rfc2136_tsig_secret = data.aws_secretsmanager_secret_version.acme-update-key.secret_string
+  }
+}
+
+resource "kubernetes_secret_v1" "cloudflare_api" {
+  metadata {
+    name      = "cloudflare-api-token"
+    namespace = kubernetes_namespace.cert_manager.metadata[0].name
+  }
+
+  data = {
+    api_token = jsondecode(data.aws_secretsmanager_secret_version.secrets.secret_string)["cloudflare_token"]
   }
 }
 
@@ -72,5 +83,36 @@ resource "kubernetes_manifest" "cert_manager_cluster_issuer" {
     }
   }
 
+  depends_on = [helm_release.cert]
+}
+
+resource "kubernetes_manifest" "letsencrypt_cluster_issuer" {
+  manifest = {
+    apiVersion = "cert-manager.io/v1"
+    kind       = "ClusterIssuer"
+    metadata = {
+      name = "letsencrypt"
+    }
+    spec = {
+      acme = {
+        server = "https://acme-v02.api.letsencrypt.org/directory"
+        email  = "admin@shirwalab.net"
+        privateKeySecretRef = {
+          name = "letsencrypt-cloudflare-key"
+        }
+        solvers = [{
+          dns01 = {
+            cloudflare = {
+              email = "admin@shirwalab.net" 
+              apiTokenSecretRef = {
+                name = kubernetes_secret_v1.cloudflare_api.metadata[0].name
+                key  = "api_token"
+              }
+            }
+          }
+        }]
+      }
+    }
+  }
   depends_on = [helm_release.cert]
 }
