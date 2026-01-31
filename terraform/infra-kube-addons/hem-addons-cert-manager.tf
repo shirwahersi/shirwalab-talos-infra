@@ -4,17 +4,6 @@ resource "kubernetes_namespace" "cert_manager" {
   }
 }
 
-resource "kubernetes_config_map_v1" "ipa-ca-bundle" {
-  metadata {
-    name      = "ipa-ca-bundle"
-    namespace = kubernetes_namespace.cert_manager.metadata[0].name
-  }
-
-  data = {
-    "ca-certificates.crt" = "${file("${path.module}/files/helm/cert-manager/ipa-ca.crt")}"
-  }
-}
-
 resource "helm_release" "cert" {
   name = "cert-manager"
 
@@ -60,6 +49,7 @@ resource "kubernetes_manifest" "cert_manager_cluster_issuer" {
       acme = {
         email  = "admin@int.shirwalab.net"
         server = "https://idm.int.shirwalab.net/acme/directory"
+        caBundle = "${base64encode(file("${path.module}/files/helm/cert-manager/ipa-ca.crt"))}"
         privateKeySecretRef = {
           name = "ipa-issuer-account-key"
         }

@@ -1,12 +1,12 @@
 terraform {
-  required_version = "~> 1.11.3"
+  required_version = "~> 1.13.3"
 
   backend "s3" {}
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.93.0"
+      version = "~> 6.16.0"
     }
     libvirt = {
       source  = "dmacvicar/libvirt"
@@ -14,23 +14,23 @@ terraform {
     }
     talos = {
       source  = "siderolabs/talos"
-      version = "0.7.1"
+      version = "0.9.0"
     }
     routeros = {
       source  = "terraform-routeros/routeros"
-      version = "1.80.0"
+      version = "1.88.0"
     }
     local = {
       source  = "hashicorp/local"
-      version = "2.5.2"
+      version = "2.5.3"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "3.0.0-pre2"
+      version = "3.0.2"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.36.0"
+      version = "2.38.0"
     }
   }
 }

@@ -1,0 +1,21 @@
+policy: sync
+logLevel: debug
+logFormat: json
+domainFilters:
+  - int.shirwalab.net # only handle DDNS for *.int.shirwalab.net
+txtPrefix: external-dns-internal-
+txtOwnerId: shirwalab-internal
+provider: rfc2136
+env:
+  - name: EXTERNAL_DNS_RFC2136_TSIG_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: bind-tsig-secret
+        key: externaldns
+extraArgs:
+  - --rfc2136-host=192.168.88.220
+  - --rfc2136-port=53
+  - --rfc2136-zone=int.shirwalab.net
+  - --rfc2136-tsig-keyname=externaldns
+  - --rfc2136-tsig-secret-alg=hmac-sha512
+  - --rfc2136-tsig-axfr

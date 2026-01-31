@@ -1,0 +1,15 @@
+policy: sync
+logLevel: debug
+logFormat: json
+domainFilters:
+  - shirwalab.net # only handle DDNS for *.int.shirwalab.net
+provider: cloudflare
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: cloudflare_token
+extraArgs:
+  - --cloudflare-proxied
+  - --source=ingress

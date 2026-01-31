@@ -6,7 +6,7 @@ provider "aws" {
 }
 
 provider "libvirt" {
-  uri = "qemu+ssh://root@${var.libvirt_server}/system"
+  uri = "qemu+ssh://root@${var.libvirt_server}/system?sshauth=privkey"
 }
 
 provider "routeros" {
