@@ -1,0 +1,19 @@
+storageClasses:
+  - name: nfs-delete
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "true"
+    parameters:
+      server: 192.168.88.254
+      share: /data/export/k8s-data
+    reclaimPolicy: Delete
+    volumeBindingMode: Immediate
+    mountOptions:
+      - nfsvers=4.1
+  - name: nfs-retain
+    parameters:
+      server: 192.168.88.254
+      share: /data/export/k8s-data-retain
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+    mountOptions:
+      - nfsvers=4.1
