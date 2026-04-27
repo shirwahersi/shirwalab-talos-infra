@@ -1,3 +1,11 @@
+data "aws_secretsmanager_secret" "vault" {
+  name = "/shirwalab/vault"
+}
+
+data "aws_secretsmanager_secret_version" "vault" {
+  secret_id = data.aws_secretsmanager_secret.vault.id
+}
+
 data "aws_secretsmanager_secret" "acme-update-key" {
   name = "/homelab/ipa/acme-update-key"
 }

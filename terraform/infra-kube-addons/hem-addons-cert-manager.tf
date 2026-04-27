@@ -38,37 +38,40 @@ resource "kubernetes_secret_v1" "cloudflare_api" {
   }
 }
 
+resource "kubernetes_secret_v1" "vault_app_role" {
+  metadata {
+    name      = "vault-app-role"
+    namespace = kubernetes_namespace.cert_manager.metadata[0].name
+  }
+
+  data = {
+    cert_manager_role_id = jsondecode(data.aws_secretsmanager_secret_version.vault.secret_string)["cert_manager_role_id"]
+    cert_manager_role_secret_id = jsondecode(data.aws_secretsmanager_secret_version.vault.secret_string)["cert_manager_role_secret_id"]
+  }
+}
+
 resource "kubernetes_manifest" "cert_manager_cluster_issuer" {
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "ClusterIssuer"
     metadata = {
-      name = "ipa"
+      name = "vault-issuer"
     }
     spec = {
-      acme = {
-        email  = "admin@int.shirwalab.net"
-        server = "https://idm.int.shirwalab.net/acme/directory"
-        caBundle = "${base64encode(file("${path.module}/files/helm/cert-manager/ipa-ca.crt"))}"
-        privateKeySecretRef = {
-          name = "ipa-issuer-account-key"
-        }
-        solvers = [{
-          dns01 = {
-            rfc2136 = {
-              nameserver    = "idm.int.shirwalab.net"
-              tsigKeyName   = "acme-update"
-              tsigAlgorithm = "HMACSHA512"
-              tsigSecretSecretRef = {
-                name = "ipa-tsig-secret"
-                key  = "rfc2136_tsig_secret"
-              }
+      vault = {
+        path  = "shirwalab/pki_int/sign/cert-manager"
+        server = "https://vault.int.shirwalab.net"
+        caBundle = "${base64encode(file("${path.module}/files/ca/shirwalab_ca.crt"))}"
+        auth = {
+          appRole = {
+            path: "approle"
+            roleId = "cab5f6ae-693a-7f85-0fb5-9e475e6a2344"
+            secretRef = {
+              name = kubernetes_secret_v1.vault_app_role.metadata[0].name
+              key  = "cert_manager_role_secret_id"
             }
           }
-          selector = {
-            dnsZones = ["int.shirwalab.net"]
-          }
-        }]
+        }
       }
     }
   }

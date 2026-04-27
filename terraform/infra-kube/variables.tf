@@ -45,5 +45,5 @@ variable "libvirt_server" {
 
 variable "mikrotik_router" {
   type    = string
-  default = "https://mikrotik.int.shirwalab.net"
+  default = "https://192.168.88.1"
 }
